@@ -69,6 +69,17 @@ if(enquiryForm){
     e.preventDefault();
     if(!enquiryForm.reportValidity())return;
     const d=new FormData(enquiryForm);
+    const subData = {
+      name: String(d.get('name') || ''),
+      email: String(d.get('email') || ''),
+      phone: String(d.get('phone') || ''),
+      occasion: String(d.get('occasion') || ''),
+      date: String(d.get('date') || ''),
+      venue: String(d.get('venue') || ''),
+      message: String(d.get('message') || ''),
+      _hp_check: String(d.get('_hp_check') || '')
+    };
+
     try{
       const submissionKey='fe-form-submissions-v1';
       const submissions=JSON.parse(localStorage.getItem(submissionKey)||'[]');
@@ -76,16 +87,22 @@ if(enquiryForm){
         id:'FE-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7),
         createdAt:new Date().toISOString(),
         status:'new',
-        name:String(d.get('name')||''),
-        email:String(d.get('email')||''),
-        phone:String(d.get('phone')||''),
-        occasion:String(d.get('occasion')||''),
-        date:String(d.get('date')||''),
-        venue:String(d.get('venue')||''),
-        message:String(d.get('message')||'')
+        ...subData
       });
       localStorage.setItem(submissionKey,JSON.stringify(submissions));
     }catch(error){console.warn('Local enquiry storage is unavailable.',error)}
+
+    // Sync to Supabase in background
+    if(window.FunEventSupabase && typeof window.FunEventSupabase.submitEnquiry === 'function'){
+      window.FunEventSupabase.submitEnquiry(subData).then(res=>{
+        if(res && res.success){
+          console.log('Enquiry saved to Supabase successfully.');
+        }
+      }).catch(err=>{
+        console.warn('Supabase enquiry submit note:', err.message);
+      });
+    }
+
     summary.textContent=[
       'Fun Event — Event Enquiry',
       'Name: '+d.get('name'),
@@ -103,7 +120,7 @@ if(enquiryForm){
     const mailBtn=document.querySelector('#enquiry-email');
     if(mailBtn)mailBtn.href='mailto:info@funevents.ae?subject='+encodeURIComponent('Event enquiry — '+d.get('occasion'))+'&body='+encodeURIComponent(summary.textContent);
     result.hidden=false;
-    status.textContent='Summary prepared. Choose WhatsApp or Email below to continue.';
+    status.textContent='Enquiry saved. Choose WhatsApp or Email below to continue.';
     result.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'});
   });
   const copyBtn=document.querySelector('#copy-enquiry');

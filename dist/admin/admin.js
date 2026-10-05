@@ -43,6 +43,53 @@ function initAuth(){
 function bootAdmin(){
  renderPages();renderStats();renderSubmissions();bindAdmin();
  loadPreview('/');
+ syncFromSupabase();
+}
+async function syncFromSupabase(){
+ const statusEl=$('#backend-status');
+ if(!window.FunEventSupabase){if(statusEl)statusEl.textContent='● Local fallback';return}
+ try{
+  const res=await window.FunEventSupabase.fetchSubmissions(50);
+  if(res&&res.success){
+   if(statusEl){
+    statusEl.textContent='● Supabase Live';
+    statusEl.style.background='rgba(34,197,94,0.15)';
+    statusEl.style.color='#22c55e';
+    statusEl.style.borderColor='rgba(34,197,94,0.3)';
+   }
+   if(Array.isArray(res.data)&&res.data.length){
+    const local=getJSON(KEYS.submissions);
+    const map=new Map();
+    local.forEach(item=>map.set(item.id,item));
+    res.data.forEach(item=>{
+     if(!map.has(item.id)){
+      map.set(item.id,{
+       id:item.id,
+       createdAt:item.created_at||item.createdAt||new Date().toISOString(),
+       status:item.status||'new',
+       name:item.name,
+       email:item.email,
+       phone:item.phone,
+       occasion:item.occasion,
+       date:item.date,
+       venue:item.venue,
+       message:item.message
+      });
+     }else{
+      const ex=map.get(item.id);
+      ex.status=item.status||ex.status;
+     }
+    });
+    const merged=Array.from(map.values()).sort((a,b)=>new Date(a.createdAt)-new Date(b.createdAt));
+    setJSON(KEYS.submissions,merged);
+    renderSubmissions();renderStats();
+   }
+  }else{
+   if(statusEl){statusEl.textContent='● Supabase Ready (Pending Table)';statusEl.title='Run supabase-schema.sql in Supabase SQL editor to activate database tables'}
+  }
+ }catch(e){
+  if(statusEl)statusEl.textContent='● Local fallback';
+ }
 }
 function switchView(view){
  $$('.admin-view').forEach(p=>p.classList.toggle('is-active',p.dataset.viewPanel===view));
@@ -69,7 +116,18 @@ function bindAdmin(){
  $('#inspector-form').addEventListener('submit',saveSelected);
  $('#remove-override').addEventListener('click',restoreSelected);
  $('#field-upload').addEventListener('change',handleUpload);
- $('#mark-all-read').addEventListener('click',()=>{const rows=getJSON(KEYS.submissions);rows.forEach(row=>row.status='read');setJSON(KEYS.submissions,rows);renderSubmissions();renderStats();toast('All enquiries marked as read')});
+ $('#mark-all-read').addEventListener('click',()=>{
+  const rows=getJSON(KEYS.submissions);
+  rows.forEach(row=>{
+   if(row.status!=='read'){
+    row.status='read';
+    if(window.FunEventSupabase&&typeof window.FunEventSupabase.updateSubmissionStatus==='function'){
+     window.FunEventSupabase.updateSubmissionStatus(row.id,'read').catch(()=>{});
+    }
+   }
+  });
+  setJSON(KEYS.submissions,rows);renderSubmissions();renderStats();toast('All enquiries marked as read');
+ });
  $('#export-submissions').addEventListener('click',exportCSV);
  $('#export-backup').addEventListener('click',exportBackup);
  $('#import-backup').addEventListener('change',importBackup);
@@ -182,7 +240,21 @@ function saveSelected(event){
  const edits=getJSON(KEYS.edits),index=edits.findIndex(item=>normalPath(item.page)===activePage&&item.selector===selectedSelector);
  if(index>-1)edits[index]=edit;else edits.push(edit);
  try{setJSON(KEYS.edits,edits)}catch{toast('Storage full. Use a smaller image or export and reset.');return}
- applyEdit(selectedElement,edit);renderStats();toast('Change saved in this browser');
+ applyEdit(selectedElement,edit);renderStats();
+
+ if(window.FunEventSupabase&&typeof window.FunEventSupabase.saveContentOverride==='function'){
+  // Quota safeguard: do not send oversized base64 dumps to database
+  if(attrs.src&&attrs.src.startsWith('data:image/')&&attrs.src.length>50000){
+   toast('Saved locally. (Image is large base64: use an asset URL to sync to cloud without quota bloat)');
+   return;
+  }
+  window.FunEventSupabase.saveContentOverride(edit).then(res=>{
+   if(res&&res.success)toast('Change saved & synced to Supabase');
+   else toast('Saved in this browser (Supabase table pending)');
+  }).catch(()=>{toast('Change saved in this browser')});
+ }else{
+  toast('Change saved in this browser');
+ }
 }
 function applyEdit(el,edit){
  if(edit.html!==null&&edit.html!==undefined)el.innerHTML=edit.html;
@@ -192,7 +264,11 @@ function applyEdit(el,edit){
 function restoreSelected(){
  if(!selectedSelector)return;
  const edits=getJSON(KEYS.edits).filter(item=>!(normalPath(item.page)===activePage&&item.selector===selectedSelector));
- setJSON(KEYS.edits,edits);renderStats();loadPreview(activePage);toast('Original content restored');
+ setJSON(KEYS.edits,edits);renderStats();loadPreview(activePage);
+ if(window.FunEventSupabase&&typeof window.FunEventSupabase.deleteContentOverride==='function'){
+  window.FunEventSupabase.deleteContentOverride(activePage,selectedSelector).catch(()=>{});
+ }
+ toast('Original content restored');
 }
 function handleUpload(event){
  const file=event.target.files[0];if(!file)return;
@@ -218,6 +294,9 @@ function renderSubmissions(){
 function openSubmission(id){
  const rows=getJSON(KEYS.submissions),row=rows.find(item=>item.id===id);if(!row)return;
  row.status='read';setJSON(KEYS.submissions,rows);
+ if(window.FunEventSupabase&&typeof window.FunEventSupabase.updateSubmissionStatus==='function'){
+  window.FunEventSupabase.updateSubmissionStatus(id,'read').catch(()=>{});
+ }
  $('#submission-detail').innerHTML='<p class="kicker">Event enquiry</p><h2>'+escapeHTML(row.name||'Unnamed enquiry')+'</h2><dl class="detail-grid">'+[
   ['Received',formatDate(row.createdAt)],['Email',row.email],['Phone',row.phone||'Not provided'],['Occasion',row.occasion],['Preferred date',row.date||'To be confirmed'],['Venue',row.venue||'To be confirmed'],['Message',row.message]
  ].map(([label,value])=>'<dt>'+escapeHTML(label)+'</dt><dd>'+escapeHTML(value||'')+'</dd>').join('')+'</dl>';
