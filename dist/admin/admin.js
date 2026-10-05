@@ -2,10 +2,13 @@
 'use strict';
 
 const KEYS = {
-  pin: 'fe-admin-pin-v1',
+  pin: 'fe-admin-pin-v2',
   edits: 'fe-content-overrides-v1',
   submissions: 'fe-form-submissions-v1'
 };
+
+// Default PIN is 1234 (SHA-256)
+const DEFAULT_PIN_HASH = '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4';
 
 const PAGES = [
   { name: 'Home', path: '/', note: 'Main flagship landing page' },
@@ -77,22 +80,14 @@ let activeServiceFilter = 'all';
    AUTH & BOOT
    ============================================================================== */
 function initAuth() {
-  const saved = localStorage.getItem(KEYS.pin);
   const screen = $('#auth-screen');
   const shell = $('#admin-shell');
   const confirmWrap = $('#confirm-wrap');
 
-  if(saved) {
-    $('#auth-title').textContent = 'Unlock Elementor Studio';
-    $('#auth-copy').textContent = 'Enter your private studio PIN to access the visual builder.';
-    $('#auth-submit').textContent = 'Unlock Studio ↗';
-    confirmWrap.hidden = true;
-  } else {
-    $('#auth-title').textContent = 'Create Admin Studio PIN';
-    $('#auth-copy').textContent = 'Create a secure 4-digit PIN for your browser studio.';
-    $('#auth-submit').textContent = 'Activate Studio ↗';
-    confirmWrap.hidden = false;
-  }
+  $('#auth-title').textContent = 'Enter Admin PIN';
+  $('#auth-copy').textContent = 'Enter the 4-digit admin PIN to unlock Elementor Visual Studio.';
+  $('#auth-submit').textContent = 'Unlock Studio ↗';
+  if(confirmWrap) confirmWrap.hidden = true;
 
   const unlock = () => {
     screen.hidden = true;
@@ -101,23 +96,27 @@ function initAuth() {
     bootAdmin();
   };
 
-  if(saved && sessionStorage.getItem('fe-admin-session') === '1') {
+  if(sessionStorage.getItem('fe-admin-session') === '1') {
     unlock();
     return;
   }
 
   $('#auth-form').addEventListener('submit', async e => {
     e.preventDefault();
-    const pin = $('#admin-pin').value;
+    const pin = $('#admin-pin').value.trim();
     const status = $('#auth-status');
-    if(pin.length < 4) { status.textContent = 'PIN must be at least 4 characters.'; return; }
-    const digest = await hash(pin);
-    if(saved) {
-      if(digest !== saved) { status.textContent = 'Incorrect PIN.'; return; }
-    } else {
-      if(pin !== $('#admin-pin-confirm').value) { status.textContent = 'PIN confirmation does not match.'; return; }
-      localStorage.setItem(KEYS.pin, digest);
+    if(!pin || pin.length < 4) {
+      status.textContent = 'PIN must be at least 4 digits.';
+      return;
     }
+    const digest = await hash(pin);
+    const activePinHash = localStorage.getItem(KEYS.pin) || DEFAULT_PIN_HASH;
+    if(digest !== activePinHash) {
+      status.textContent = 'Incorrect PIN. Access denied.';
+      $('#admin-pin').value = '';
+      return;
+    }
+    status.textContent = '';
     unlock();
   });
 }
@@ -377,8 +376,11 @@ function bindStudioEvents() {
   });
   $('#update-pin-form').addEventListener('submit', async e => {
     e.preventDefault();
-    const np = $('#new-pin-val').value;
-    if(np.length < 4) return;
+    const np = $('#new-pin-val').value.trim();
+    if(np.length < 4) {
+      toast('PIN must be at least 4 digits.');
+      return;
+    }
     localStorage.setItem(KEYS.pin, await hash(np));
     toast('Admin PIN successfully updated.');
     $('#new-pin-val').value = '';
@@ -386,6 +388,7 @@ function bindStudioEvents() {
   $('#reset-all-btn').addEventListener('click', () => {
     if(!confirm('Reset all local storage and admin PIN for this browser?')) return;
     Object.values(KEYS).forEach(k => localStorage.removeItem(k));
+    localStorage.removeItem('fe-admin-pin-v1');
     sessionStorage.removeItem('fe-admin-session');
     location.reload();
   });
