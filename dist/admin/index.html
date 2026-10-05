@@ -4,130 +4,500 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>Fun Event — Local Admin</title>
+<title>Fun Event — Elementor Visual Admin & CRM</title>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/admin/admin.css">
 </head>
 <body>
+
+<!-- PIN AUTHENTICATION SCREEN -->
 <div class="auth-screen" id="auth-screen">
   <form class="auth-card" id="auth-form">
-    <img src="/assets/fun-events-logo.png" alt="Fun Event" width="140" height="92">
-    <p class="kicker">Local content studio</p>
-    <h1 id="auth-title">Create your admin PIN</h1>
-    <p id="auth-copy">Set a private PIN for this browser. Use at least 4 characters.</p>
-    <label>Admin PIN<input id="admin-pin" type="password" minlength="4" autocomplete="current-password" required></label>
-    <label id="confirm-wrap">Confirm PIN<input id="admin-pin-confirm" type="password" minlength="4" autocomplete="new-password"></label>
-    <button type="submit" class="primary-btn" id="auth-submit">Create local admin</button>
-    <p class="auth-note">Demo-local mode: data stays only in this browser and is not server-secured.</p>
+    <img src="/assets/fun-events-logo.png" alt="Fun Event" width="130" height="85">
+    <p class="kicker">Elementor Visual Studio</p>
+    <h1 id="auth-title">Enter Admin PIN</h1>
+    <p id="auth-copy">Unlock the live website builder and event leads manager.</p>
+    <label>Admin PIN<input id="admin-pin" type="password" minlength="4" autocomplete="current-password" required placeholder="••••"></label>
+    <label id="confirm-wrap" hidden>Confirm PIN<input id="admin-pin-confirm" type="password" minlength="4" autocomplete="new-password" placeholder="••••"></label>
+    <button type="submit" class="primary-btn" id="auth-submit">Unlock Studio ↗</button>
     <p class="form-status" id="auth-status" role="status"></p>
+    <p class="auth-note">Data securely synchronizes in real-time with Supabase Cloud.</p>
   </form>
 </div>
 
+<!-- ELEMENTOR ADMIN SHELL -->
 <div class="admin-shell" id="admin-shell" hidden>
-  <aside class="sidebar">
-    <a class="admin-brand" href="/" target="_blank" rel="noopener">
-      <img src="/assets/fun-events-logo.png" alt="Fun Event">
-      <span>Content Studio</span>
-    </a>
-    <nav aria-label="Admin navigation">
-      <button class="nav-item is-active" data-view="dashboard"><span>◫</span>Dashboard</button>
-      <button class="nav-item" data-view="pages"><span>▤</span>Pages</button>
-      <button class="nav-item" data-view="editor"><span>✦</span>Visual Editor</button>
-      <button class="nav-item" data-view="submissions"><span>✉</span>Submissions <b id="submission-badge">0</b></button>
-      <button class="nav-item" data-view="settings"><span>⚙</span>Settings</button>
-    </nav>
-    <div class="sidebar-foot">
-      <a href="/" target="_blank" rel="noopener">View website ↗</a>
-      <button id="logout-button">Lock admin</button>
+  
+  <!-- TOP BAR -->
+  <header class="el-header">
+    <div class="el-header-left">
+      <div class="el-brand-badge">
+        <img src="/assets/fun-events-logo.png" alt="Fun Event">
+        <span>Visual Studio</span>
+      </div>
+      
+      <nav class="el-mode-nav">
+        <button class="el-mode-btn is-active" data-view="editor">
+          <span>🎨</span>Visual Editor
+        </button>
+        <button class="el-mode-btn" data-view="submissions">
+          <span>✉</span>Leads & CRM <b id="sub-badge-count">0</b>
+        </button>
+        <button class="el-mode-btn" data-view="pages">
+          <span>▤</span>Pages
+        </button>
+        <button class="el-mode-btn" data-view="settings">
+          <span>⚙</span>Settings
+        </button>
+      </nav>
     </div>
-  </aside>
 
-  <main class="admin-main">
-    <header class="admin-topbar">
-      <button class="mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Toggle admin menu">☰</button>
-      <div><p>Fun Event</p><h2 id="view-title">Dashboard</h2></div>
-      <div class="top-actions"><span class="local-pill" id="backend-status">● Supabase Connecting...</span><button class="ghost-btn" id="quick-edit">Edit homepage</button></div>
-    </header>
+    <!-- CENTER (PAGE & VIEWPORT CONTROLS) -->
+    <div class="el-header-center">
+      <div class="el-page-selector" id="page-selector-wrap">
+        <span>Editing:</span>
+        <select id="editor-page-select">
+          <option value="/">Home (/)</option>
+          <option value="/about/">About (/about/)</option>
+          <option value="/services/">Services (/services/)</option>
+          <option value="/weddings/">Weddings (/weddings/)</option>
+          <option value="/celebrations/">Celebrations (/celebrations/)</option>
+          <option value="/hospitality/">Hospitality (/hospitality/)</option>
+          <option value="/gallery/">Gallery (/gallery/)</option>
+          <option value="/experience/">Experience (/experience/)</option>
+          <option value="/contact/">Contact (/contact/)</option>
+        </select>
+      </div>
 
-    <section class="admin-view is-active" data-view-panel="dashboard">
-      <div class="welcome-panel">
-        <div><p class="kicker">Website control centre</p><h1>Everything important,<br><em>in one place.</em></h1><p>Edit visible page content, update images and links, and review enquiries saved from this browser.</p></div>
-        <button class="primary-btn" data-open-editor="/">Open visual editor ↗</button>
+      <div class="el-device-bar" id="device-bar-wrap">
+        <button class="el-device-btn is-active" data-width="100%" title="Desktop View">🖥️</button>
+        <button class="el-device-btn" data-width="1024px" title="Laptop / Tablet Landscape">💻</button>
+        <button class="el-device-btn" data-width="768px" title="Tablet Portrait">📱</button>
+        <button class="el-device-btn" data-width="390px" title="Mobile Portrait">📲</button>
       </div>
-      <div class="stat-grid">
-        <article><span>Pages</span><strong id="stat-pages">9</strong><small>Available to edit</small></article>
-        <article><span>Saved edits</span><strong id="stat-edits">0</strong><small>Local content changes</small></article>
-        <article><span>New enquiries</span><strong id="stat-new">0</strong><small>Waiting for review</small></article>
-        <article><span>Storage</span><strong id="stat-storage">0 KB</strong><small>Used in this browser</small></article>
-      </div>
-      <div class="dashboard-grid">
-        <article class="panel"><div class="panel-head"><div><p class="kicker">Quick access</p><h3>Website pages</h3></div><button class="text-btn" data-switch-view="pages">View all</button></div><div class="quick-pages" id="quick-pages"></div></article>
-        <article class="panel"><div class="panel-head"><div><p class="kicker">Inbox</p><h3>Recent enquiries</h3></div><button class="text-btn" data-switch-view="submissions">Open inbox</button></div><div id="recent-submissions" class="empty-state">No local enquiries yet.</div></article>
-      </div>
-    </section>
+    </div>
 
-    <section class="admin-view" data-view-panel="pages">
-      <div class="section-heading"><div><p class="kicker">Page manager</p><h1>Select a page to edit</h1></div><p>Open any page in the visual editor and click the exact content you want to change.</p></div>
-      <div class="page-grid" id="page-grid"></div>
-    </section>
+    <!-- RIGHT TOOLS -->
+    <div class="el-header-right">
+      <span class="el-status-pill" id="backend-status">● Supabase Live</span>
+      <a class="el-btn-view-site" id="open-live-btn" href="/" target="_blank" rel="noopener">Preview Site ↗</a>
+      <button class="el-btn-publish" id="quick-publish-btn">Publish ✦</button>
+      <button class="el-tool-icon-btn" id="logout-btn" title="Lock Admin">🔒</button>
+    </div>
+  </header>
 
-    <section class="admin-view editor-view" data-view-panel="editor">
-      <div class="editor-toolbar">
-        <div class="toolbar-group"><label for="editor-page">Page</label><select id="editor-page"></select></div>
-        <div class="viewport-switch" aria-label="Preview size"><button class="is-active" data-width="100%">Desktop</button><button data-width="768px">Tablet</button><button data-width="390px">Mobile</button></div>
-        <button class="ghost-btn" id="refresh-preview">Refresh</button>
-        <button class="primary-btn" id="open-live-page">Open page ↗</button>
+  <!-- ==============================================================================
+       VIEW 1: ELEMENTOR VISUAL BUILDER WORKSPACE
+       ============================================================================== -->
+  <div class="el-workspace admin-view is-active" data-view-panel="editor">
+    
+    <!-- LEFT PANEL (ELEMENTOR DOCK) -->
+    <aside class="el-panel">
+      <div class="el-panel-header">
+        <div class="el-panel-title">
+          <span id="panel-mode-icon">✦</span>
+          <span id="panel-mode-title">Element Inspector</span>
+        </div>
+        <div class="el-panel-header-tools">
+          <button class="el-tool-icon-btn" id="toggle-navigator-btn" title="Toggle Page Navigator">📑</button>
+          <button class="el-tool-icon-btn" id="refresh-frame-btn" title="Refresh Preview">🔄</button>
+        </div>
       </div>
-      <div class="editor-workspace">
-        <div class="preview-stage"><div class="preview-frame-wrap" id="preview-frame-wrap"><iframe id="site-preview" title="Website preview"></iframe></div></div>
-        <aside class="inspector">
-          <div class="inspector-empty" id="inspector-empty"><span>✦</span><h3>Select an element</h3><p>Click text, an image or a link inside the preview to edit it.</p></div>
-          <form id="inspector-form" hidden>
-            <div class="selected-meta"><span id="selected-tag">ELEMENT</span><small id="selected-selector"></small></div>
-            <label class="field text-field">Content<textarea id="field-content" rows="6" placeholder="Selected content"></textarea><small>Simple HTML is supported for styled words.</small></label>
-            <div class="image-fields" hidden>
-              <label class="field">Image URL<input id="field-src" type="text" placeholder="/assets/image.jpg"></label>
-              <label class="field">Alternative text<input id="field-alt" type="text"></label>
-              <label class="upload-button">Use image from this device<input id="field-upload" type="file" accept="image/jpeg,image/png,image/webp,image/gif"></label>
-              <small class="field-help">Local demo images should be under 1.5 MB.</small>
+
+      <!-- TABS (CONTENT, STYLE, ADVANCED) -->
+      <nav class="el-tabs" id="inspector-tabs">
+        <button class="el-tab is-active" data-tab="content">Content</button>
+        <button class="el-tab" data-tab="style">Style</button>
+        <button class="el-tab" data-tab="advanced">Advanced</button>
+      </nav>
+
+      <div class="el-panel-body" id="inspector-body">
+        
+        <!-- EMPTY STATE (WHEN NO ELEMENT IS CLICKED) -->
+        <div class="el-empty-inspector" id="inspector-empty">
+          <span class="icon">👆</span>
+          <h3>Click any Element</h3>
+          <p>Click any heading, text, image, icon or button in the canvas to start editing like WordPress Elementor.</p>
+          <p style="margin-top: 14px; font-size: 11px; color: var(--el-accent);">Double-click any text inside the preview to type inline!</p>
+        </div>
+
+        <!-- ACTIVE ELEMENT INSPECTOR FORM -->
+        <form id="inspector-form" hidden>
+          <div class="el-selected-badge">
+            <span class="tag" id="selected-tag">HEADING</span>
+            <span class="selector" id="selected-selector">h1#page-title</span>
+          </div>
+
+          <!-- TAB 1: CONTENT -->
+          <div class="tab-pane is-active" data-pane="content">
+            
+            <!-- TEXT / HTML ACCORDION -->
+            <div class="el-section" id="section-text-content">
+              <div class="el-section-head">
+                <span>Text / Title</span>
+                <span class="arrow">▼</span>
+              </div>
+              <div class="el-section-body">
+                <div class="el-control">
+                  <div class="el-format-tools">
+                    <button type="button" class="el-format-btn" data-insert="<em>" data-close="</em>">Italic &lt;em&gt;</button>
+                    <button type="button" class="el-format-btn" data-insert="<span>" data-close="</span>">Span &lt;span&gt;</button>
+                    <button type="button" class="el-format-btn" data-insert="<br>" data-close="">Break &lt;br&gt;</button>
+                  </div>
+                  <textarea class="el-textarea" id="field-content" placeholder="Edit heading or content..."></textarea>
+                </div>
+              </div>
             </div>
-            <div class="link-fields" hidden>
-              <label class="field">Link destination<input id="field-href" type="text" placeholder="/contact/"></label>
-              <label class="check-field"><input id="field-new-tab" type="checkbox"> Open in new tab</label>
-            </div>
-            <div class="style-fields">
-              <h4>Appearance</h4>
-              <div class="field-row"><label class="field">Text colour<input id="field-color" type="color" value="#111111"></label><label class="field">Background<input id="field-bg" type="color" value="#ffffff"></label></div>
-              <div class="field-row"><label class="field">Font size<input id="field-size" type="number" min="8" max="180" placeholder="px"></label><label class="field">Alignment<select id="field-align"><option value="">Default</option><option value="left">Left</option><option value="center">Center</option><option value="right">Right</option></select></label></div>
-              <div class="field-row"><label class="field">Top spacing<input id="field-pt" type="number" min="0" max="240" placeholder="px"></label><label class="field">Bottom spacing<input id="field-pb" type="number" min="0" max="240" placeholder="px"></label></div>
-              <label class="check-field"><input id="field-hidden" type="checkbox"> Hide this element</label>
-            </div>
-            <div class="inspector-actions"><button type="submit" class="primary-btn">Save change</button><button type="button" class="danger-text" id="remove-override">Restore original</button></div>
-          </form>
-        </aside>
-      </div>
-    </section>
 
-    <section class="admin-view" data-view-panel="submissions">
-      <div class="section-heading"><div><p class="kicker">Enquiry inbox</p><h1>Form submissions</h1></div><p>Enquiries prepared on this browser appear here. Open a record to see every field.</p></div>
-      <div class="submission-tools"><button class="ghost-btn" id="mark-all-read">Mark all read</button><button class="ghost-btn" id="export-submissions">Export CSV</button></div>
-      <div class="submission-list" id="submission-list"></div>
-    </section>
+            <!-- IMAGE CONTROLS ACCORDION -->
+            <div class="el-section" id="section-image-content" hidden>
+              <div class="el-section-head">
+                <span>Choose Image</span>
+                <span class="arrow">▼</span>
+              </div>
+              <div class="el-section-body">
+                <div class="el-control">
+                  <label class="el-control-label">Image Source URL</label>
+                  <input type="text" class="el-input-text" id="field-src" placeholder="/assets/hero-wedding.jpg">
+                </div>
+                <div class="el-control">
+                  <label class="el-control-label">Alternative Text (SEO)</label>
+                  <input type="text" class="el-input-text" id="field-alt" placeholder="Event description">
+                </div>
+                
+                <div class="el-control">
+                  <label class="el-control-label">Quick Site Presets</label>
+                  <div class="el-image-presets-grid" id="preset-images-list">
+                    <!-- Populated dynamically with high-res real site photos -->
+                  </div>
+                </div>
 
-    <section class="admin-view" data-view-panel="settings">
-      <div class="section-heading"><div><p class="kicker">Local settings</p><h1>Backup & access</h1></div><p>Export a backup before clearing browser data or moving to another computer.</p></div>
-      <div class="settings-grid">
-        <article class="panel"><h3>Content backup</h3><p>Download all edits and submissions as one JSON file.</p><button class="primary-btn" id="export-backup">Export backup</button></article>
-        <article class="panel"><h3>Import backup</h3><p>Restore edits and submissions from a previous JSON backup.</p><label class="upload-button">Choose backup file<input id="import-backup" type="file" accept="application/json"></label></article>
-        <article class="panel"><h3>Change local PIN</h3><p>Replace the PIN used to unlock this browser.</p><form id="change-pin-form"><label class="field">New PIN<input id="new-pin" type="password" minlength="4" required></label><button class="ghost-btn" type="submit">Update PIN</button></form></article>
-        <article class="panel danger-panel"><h3>Reset local admin data</h3><p>Remove all saved edits, submissions and the local PIN from this browser.</p><button class="danger-btn" id="reset-data">Reset everything</button></article>
+                <div class="el-control">
+                  <label class="el-control-label">Upload New Image</label>
+                  <input type="file" id="field-upload" accept="image/*" class="el-input-text" style="padding: 5px;">
+                </div>
+              </div>
+            </div>
+
+            <!-- ICON CONTROLS ACCORDION -->
+            <div class="el-section" id="section-icon-content" hidden>
+              <div class="el-section-head">
+                <span>Icon Library</span>
+                <span class="arrow">▼</span>
+              </div>
+              <div class="el-section-body">
+                <p style="font-size: 11px; color: var(--el-text-muted); margin: 0 0 8px;">Select a replacement icon from our luxury event library:</p>
+                <div class="el-icon-grid" id="icon-picker-grid">
+                  <!-- Populated with SVG event icons -->
+                </div>
+              </div>
+            </div>
+
+            <!-- LINK / BUTTON CONTROLS ACCORDION -->
+            <div class="el-section" id="section-link-content" hidden>
+              <div class="el-section-head">
+                <span>Link & Button Actions</span>
+                <span class="arrow">▼</span>
+              </div>
+              <div class="el-section-body">
+                <div class="el-control">
+                  <label class="el-control-label">Destination URL</label>
+                  <input type="text" class="el-input-text" id="field-href" placeholder="/contact/ or https://...">
+                </div>
+                <div class="el-control">
+                  <label style="display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--el-text-muted); cursor: pointer;">
+                    <input type="checkbox" id="field-new-tab"> Open in new window (_blank)
+                  </label>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- TAB 2: STYLE -->
+          <div class="tab-pane" data-pane="style" hidden>
+            
+            <!-- TYPOGRAPHY -->
+            <div class="el-section">
+              <div class="el-section-head">
+                <span>Typography</span>
+                <span class="arrow">▼</span>
+              </div>
+              <div class="el-section-body">
+                <div class="el-control">
+                  <label class="el-control-label">Font Family</label>
+                  <select class="el-select" id="field-font-family">
+                    <option value="">Theme Default</option>
+                    <option value="'Cormorant Garamond', Georgia, serif">Cormorant Garamond (Serif)</option>
+                    <option value="'Manrope', Arial, sans-serif">Manrope (Clean Sans)</option>
+                    <option value="Georgia, serif">Classic Georgia</option>
+                  </select>
+                </div>
+                <div class="el-control">
+                  <label class="el-control-label">Font Size <span class="value" id="val-font-size">Default</span></label>
+                  <div class="el-slider-control">
+                    <input type="range" id="slider-font-size" min="10" max="140" value="24">
+                    <input type="number" id="field-font-size" placeholder="px">
+                  </div>
+                </div>
+                <div class="el-control">
+                  <label class="el-control-label">Font Weight</label>
+                  <select class="el-select" id="field-font-weight">
+                    <option value="">Default</option>
+                    <option value="300">300 (Light)</option>
+                    <option value="400">400 (Regular)</option>
+                    <option value="500">500 (Medium)</option>
+                    <option value="600">600 (Semi-Bold)</option>
+                    <option value="700">700 (Bold)</option>
+                  </select>
+                </div>
+                <div class="el-control">
+                  <label class="el-control-label">Text Transform</label>
+                  <div class="el-btn-group" id="group-text-transform">
+                    <button type="button" data-val="">None</button>
+                    <button type="button" data-val="uppercase">UPPER</button>
+                    <button type="button" data-val="capitalize">Capital</button>
+                    <button type="button" data-val="lowercase">lower</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- COLORS -->
+            <div class="el-section">
+              <div class="el-section-head">
+                <span>Colors & Background</span>
+                <span class="arrow">▼</span>
+              </div>
+              <div class="el-section-body">
+                <div class="el-control">
+                  <label class="el-control-label">Text Color</label>
+                  <div class="el-color-picker-row">
+                    <input type="color" id="field-color" class="el-color-swatch-input">
+                    <input type="text" id="field-color-hex" class="el-color-hex-input" placeholder="#c69b68">
+                  </div>
+                  <div class="el-preset-colors">
+                    <span class="el-preset-color-dot" style="background:#c69b68" data-color="#c69b68" title="Gold"></span>
+                    <span class="el-preset-color-dot" style="background:#e0bc87" data-color="#e0bc87" title="Light Gold"></span>
+                    <span class="el-preset-color-dot" style="background:#f4efe7" data-color="#f4efe7" title="Off White"></span>
+                    <span class="el-preset-color-dot" style="background:#100e0c" data-color="#100e0c" title="Night"></span>
+                    <span class="el-preset-color-dot" style="background:#ffffff" data-color="#ffffff" title="White"></span>
+                  </div>
+                </div>
+
+                <div class="el-control">
+                  <label class="el-control-label">Background Color</label>
+                  <div class="el-color-picker-row">
+                    <input type="color" id="field-bg-color" class="el-color-swatch-input">
+                    <input type="text" id="field-bg-hex" class="el-color-hex-input" placeholder="transparent">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ALIGNMENT -->
+            <div class="el-section">
+              <div class="el-section-head">
+                <span>Alignment</span>
+                <span class="arrow">▼</span>
+              </div>
+              <div class="el-section-body">
+                <div class="el-btn-group" id="group-text-align">
+                  <button type="button" data-val="left">Left ⯇</button>
+                  <button type="button" data-val="center">Center ⯀</button>
+                  <button type="button" data-val="right">Right ⯈</button>
+                  <button type="button" data-val="justify">Justify ☰</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- SPACING (PADDING & MARGIN) -->
+            <div class="el-section">
+              <div class="el-section-head">
+                <span>Spacing & Padding</span>
+                <span class="arrow">▼</span>
+              </div>
+              <div class="el-section-body">
+                <div class="el-control">
+                  <label class="el-control-label">Padding Top / Bottom</label>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <input type="number" id="field-padding-top" class="el-input-text" placeholder="Top px">
+                    <input type="number" id="field-padding-bottom" class="el-input-text" placeholder="Bottom px">
+                  </div>
+                </div>
+                <div class="el-control">
+                  <label class="el-control-label">Border Radius (Corners)</label>
+                  <div class="el-slider-control">
+                    <input type="range" id="slider-border-radius" min="0" max="60" value="0">
+                    <input type="number" id="field-border-radius" placeholder="px">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- TAB 3: ADVANCED -->
+          <div class="tab-pane" data-pane="advanced" hidden>
+            <div class="el-section">
+              <div class="el-section-head">
+                <span>Visibility & Motion</span>
+                <span class="arrow">▼</span>
+              </div>
+              <div class="el-section-body">
+                <div class="el-control">
+                  <label style="display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--el-text-muted); cursor: pointer;">
+                    <input type="checkbox" id="field-hidden"> Hide this element on website
+                  </label>
+                </div>
+                <div class="el-control">
+                  <label class="el-control-label">Opacity <span class="value" id="val-opacity">100%</span></label>
+                  <input type="range" id="slider-opacity" min="0" max="100" value="100" style="width: 100%;">
+                </div>
+                <div class="el-control">
+                  <label class="el-control-label">Custom CSS Classes</label>
+                  <input type="text" class="el-input-text" id="field-custom-class" placeholder="e.g. hero-highlight">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- DOCK ACTIONS -->
+          <div class="el-panel-footer">
+            <button type="submit" class="el-btn-save">Update Element ✦</button>
+            <button type="button" class="el-btn-reset" id="restore-original-btn">Restore</button>
+          </div>
+        </form>
+
+        <!-- PAGE NAVIGATOR TREE VIEW (TOGGLEABLE) -->
+        <div id="navigator-panel-view" hidden>
+          <p style="font-size: 11px; color: var(--el-text-muted); margin: 0 0 12px;">Click any section in the tree to scroll to and inspect it:</p>
+          <div class="el-navigator-tree" id="navigator-tree-list"></div>
+        </div>
+
       </div>
-    </section>
-  </main>
+    </aside>
+
+    <!-- CENTER PREVIEW CANVAS (INTERACTIVE IFRAME) -->
+    <main class="el-canvas-stage">
+      <div class="el-canvas-wrap" id="canvas-frame-wrap">
+        <iframe id="site-preview" title="Elementor Live Stage"></iframe>
+      </div>
+    </main>
+
+  </div>
+
+  <!-- ==============================================================================
+       VIEW 2: LEADS & CRM HUB (SUBMISSIONS FILTERED BY SERVICE)
+       ============================================================================== -->
+  <section class="crm-view admin-view" data-view-panel="submissions">
+    <div class="crm-header">
+      <div>
+        <h1>Event Enquiries & Leads Hub</h1>
+        <p>Real-time client submissions from contact forms and service booking popups across the site.</p>
+      </div>
+      <div class="crm-tools">
+        <button class="el-btn-view-site" id="crm-sync-btn">🔄 Sync with Supabase</button>
+        <button class="el-btn-view-site" id="crm-mark-read-btn">Mark All Read</button>
+        <button class="el-btn-publish" id="crm-export-btn">Export CSV ↗</button>
+      </div>
+    </div>
+
+    <!-- SERVICE FILTER TABS -->
+    <div class="crm-filter-bar" id="crm-service-filters">
+      <button class="crm-filter-pill is-active" data-service-filter="all">All Services <b id="cnt-all">0</b></button>
+      <button class="crm-filter-pill" data-service-filter="Weddings">Weddings & Stage <b id="cnt-weddings">0</b></button>
+      <button class="crm-filter-pill" data-service-filter="Celebrations">Private Celebrations <b id="cnt-celebrations">0</b></button>
+      <button class="crm-filter-pill" data-service-filter="Hospitality">Emirati Hospitality <b id="cnt-hospitality">0</b></button>
+      <button class="crm-filter-pill" data-service-filter="Structure">Structure & Tents <b id="cnt-structure">0</b></button>
+      <button class="crm-filter-pill" data-service-filter="Décor">Décor & Furniture <b id="cnt-decor">0</b></button>
+      <button class="crm-filter-pill" data-service-filter="Atmosphere">Sound & Lighting <b id="cnt-atmosphere">0</b></button>
+    </div>
+
+    <!-- SEARCH BAR -->
+    <div class="crm-search-bar">
+      <input type="text" class="crm-search-input" id="crm-search-input" placeholder="🔍 Search client by name, email, phone or venue...">
+    </div>
+
+    <!-- LEADS TABLE -->
+    <table class="crm-table">
+      <thead>
+        <tr>
+          <th>Client Name</th>
+          <th>Service / Occasion</th>
+          <th>Preferred Date</th>
+          <th>Venue / Emirate</th>
+          <th>Status</th>
+          <th>Quick Actions</th>
+        </tr>
+      </thead>
+      <tbody id="crm-leads-tbody">
+        <!-- Rendered dynamically -->
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ==============================================================================
+       VIEW 3: PAGES DIRECTORY
+       ============================================================================== -->
+  <section class="pages-view admin-view" data-view-panel="pages">
+    <div class="crm-header">
+      <div>
+        <h1>Website Pages Directory</h1>
+        <p>Select any page to open directly in the Elementor visual builder.</p>
+      </div>
+    </div>
+    <div class="page-cards-grid" id="pages-cards-grid"></div>
+  </section>
+
+  <!-- ==============================================================================
+       VIEW 4: SETTINGS & BACKUPS
+       ============================================================================== -->
+  <section class="settings-view admin-view" data-view-panel="settings">
+    <div class="crm-header">
+      <div>
+        <h1>Studio Settings & Cloud Security</h1>
+        <p>Manage cloud sync, export full JSON backups, or update local access PIN.</p>
+      </div>
+    </div>
+    <div class="settings-grid">
+      <div class="settings-panel">
+        <h3>Supabase Cloud Integration</h3>
+        <p>Your website is connected to project <code>hqmtdbxyoocasjngnkdk.supabase.co</code>. Live overrides and enquiries sync automatically without storage bloat.</p>
+        <button class="el-btn-publish" id="test-cloud-btn">Test Cloud Connection</button>
+      </div>
+      <div class="settings-panel">
+        <h3>Content Backup</h3>
+        <p>Download all visual customizations and local enquiries as a single JSON backup file.</p>
+        <button class="el-btn-view-site" id="backup-download-btn">Download Full Backup ↗</button>
+      </div>
+      <div class="settings-panel">
+        <h3>Change Admin PIN</h3>
+        <p>Update the PIN used to unlock this studio browser session.</p>
+        <form id="update-pin-form" style="display:flex;gap:10px;">
+          <input type="password" id="new-pin-val" class="el-input-text" placeholder="New PIN (min 4 chars)" required minlength="4">
+          <button type="submit" class="el-btn-publish">Update</button>
+        </form>
+      </div>
+      <div class="settings-panel" style="border-color: rgba(224,82,82,0.3);">
+        <h3 style="color:var(--danger)">Reset Local Storage</h3>
+        <p>Clear locally cached edits and unlock PIN from this browser.</p>
+        <button type="button" class="el-btn-reset" id="reset-all-btn">Reset Browser Cache</button>
+      </div>
+    </div>
+  </section>
+
 </div>
 
-<dialog id="submission-dialog"><button class="dialog-close" aria-label="Close">×</button><div id="submission-detail"></div></dialog>
+<!-- SUBMISSION DETAIL MODAL -->
+<dialog id="submission-dialog">
+  <button class="dialog-close" id="sub-dialog-close" aria-label="Close modal">×</button>
+  <div id="submission-detail"></div>
+</dialog>
+
+<!-- TOAST NOTIFICATION -->
 <div class="toast" id="toast" role="status"></div>
+
 <script src="/assets/supabase-client.js"></script>
 <script src="/admin/admin.js"></script>
 </body>
