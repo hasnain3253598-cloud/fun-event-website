@@ -113,12 +113,49 @@
 
       <div class="el-panel-body" id="inspector-body">
         
-        <!-- EMPTY STATE (WHEN NO ELEMENT IS CLICKED) -->
+        <!-- EMPTY STATE / WIDGET PALETTE (WHEN NO ELEMENT IS CLICKED) -->
         <div class="el-empty-inspector" id="inspector-empty">
-          <span class="icon">👆</span>
-          <h3>Click any Element</h3>
-          <p>Click any heading, text, image, icon or button in the canvas to start editing like WordPress Elementor.</p>
-          <p style="margin-top: 14px; font-size: 11px; color: var(--el-accent);">Double-click any text inside the preview to type inline!</p>
+          <div class="el-sidebar-tip-banner">
+            <span class="tip-icon">✨</span>
+            <div>
+              <strong>Live Elementor Canvas</strong>
+              <p>Click any element in the live website preview on the right to edit, or select a widget below:</p>
+            </div>
+          </div>
+
+          <div class="el-widgets-palette">
+            <h4>Quick Website Elements</h4>
+            <div class="el-widgets-grid">
+              <button type="button" class="el-widget-card" data-pick-tag="h1, h2, h3">
+                <span class="widget-icon">🔤</span>
+                <span class="widget-name">Heading</span>
+              </button>
+              <button type="button" class="el-widget-card" data-pick-tag="p, span">
+                <span class="widget-icon">📝</span>
+                <span class="widget-name">Text / Copy</span>
+              </button>
+              <button type="button" class="el-widget-card" data-pick-tag="img">
+                <span class="widget-icon">🖼️</span>
+                <span class="widget-name">Image</span>
+              </button>
+              <button type="button" class="el-widget-card" data-pick-tag="a, button, .inner-hero-cta">
+                <span class="widget-icon">🔘</span>
+                <span class="widget-name">Button / Link</span>
+              </button>
+              <button type="button" class="el-widget-card" data-pick-tag="svg, i, .social-link">
+                <span class="widget-icon">⭐</span>
+                <span class="widget-name">Icon & SVG</span>
+              </button>
+              <button type="button" class="el-widget-card" data-pick-tag="section, header, footer">
+                <span class="widget-icon">📦</span>
+                <span class="widget-name">Section Box</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="el-quick-actions-card">
+            <p>💡 <strong>Inline Editing:</strong> Double-click any text inside the live preview on the right to type directly on the page!</p>
+          </div>
         </div>
 
         <!-- ACTIVE ELEMENT INSPECTOR FORM -->

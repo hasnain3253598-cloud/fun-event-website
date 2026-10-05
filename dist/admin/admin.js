@@ -349,6 +349,22 @@ function bindStudioEvents() {
     renderSubmissions();
   }));
 
+  // Quick Widget Card clicks in Left Sidebar
+  $$('.el-widget-card').forEach(card => card.addEventListener('click', () => {
+    const frame = $('#site-preview');
+    if(!frame || !frame.contentDocument) return;
+    const doc = frame.contentDocument;
+    const selector = card.dataset.pickTag;
+    const target = doc.querySelector(selector);
+    if(target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      inspectElement(target, doc);
+      toast(`Selected ${card.querySelector('.widget-name')?.textContent || 'element'} on page!`);
+    } else {
+      toast('No matching element found on this page. Click any element on the preview to select.');
+    }
+  }));
+
   // Sub dialog close
   $('#sub-dialog-close').addEventListener('click', () => $('#submission-dialog').close());
 
